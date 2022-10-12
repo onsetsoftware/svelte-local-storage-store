@@ -11,28 +11,24 @@ npm install -D @onsetsoftware/svelte-local-storage-store
 ## Usage
 
 ### Basic
-```svelte
-<script>
-  import { localStorageStore } from '@onsetsoftware/svelte-local-storage-store';
+```ts
+import { localStorageStore } from '@onsetsoftware/svelte-local-storage-store';
 
-  const countStore = localStorageStore('count', 0);
-</script>
+const countStore = localStorageStore('count', 0);
 ```
 
 ### Async
-```svelte
-<script>
-  import { localStorageStore } from '@onsetsoftware/svelte-local-storage-store';
+```ts
+import { localStorageStore } from '@onsetsoftware/svelte-local-storage-store';
 
-  const timerStore = localStorageStore('timer', 0, (set) => {
-    let timer = timerStore.get();
-    const interval = setInterval(() => {
-      set(++timer);
-    }, 1000);
+const timerStore = localStorageStore('timer', 0, (set) => {
+  let timer = timerStore.get();
+  const interval = setInterval(() => {
+    set(++timer);
+  }, 1000);
 
-    return () => clearInterval(interval);
-  });
-</script>
+  return () => clearInterval(interval);
+});
 ```
 
 ## API
@@ -44,6 +40,11 @@ The `localStorageStore` function takes three arguments:
 - `start` - An optional function that will be called when the store is first subscribed to. It will be passed a `set` function that can be used to update the store. It should return a function that will be called when the store is unsubscribed from.
 
 This is essentially the same API as the `writable` function from Svelte's `svelte/store` package, with the addition of the `key` argument.
+
+> **Note**
+> Subsequent calls to `localStorageStore` with the same `key` will return the same store instance. If you want to delete the store from local storage, you can call `destroyLocalStorageStore(key)`.
+> 
+> If this cache doesn't work for you, please can use the `LocalStorageStore` class directly to manage your own stores. It takes the same 3 arguments as the `localStorageStore` function.
 
 The `localStorageStore` function returns a Svelte store that can be used in the same way as any other Svelte store and which implements the `Writable` interface.
 
@@ -65,4 +66,14 @@ It also exposes an additional `get` method that can be used to retrieve the curr
 const countStore = localStorageStore('count', 0);
 
 countStore.get(); // => 0
+```
+
+Finally, it exposes a `detach` method that can be used to remove the key/value pair from local storage.
+
+```ts
+const countStore = localStorageStore('count', 0);
+// localStorage.getItem('count') => 0
+
+countStore.detach();
+// localStorage.getItem('count') => undefined
 ```

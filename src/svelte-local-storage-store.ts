@@ -60,7 +60,11 @@ export class LocalStorageStore<T> implements Writable<T> {
   public subscribe(callback: (value: T) => void) {
     return this.store.subscribe(callback);
   }
-
+  
+  public detach() {
+    localStorage.removeItem(this.key);
+  }
+  
   private exists(): boolean {
     const value = localStorage.getItem(this.key);
     return !!value && value !== "undefined";
@@ -86,4 +90,11 @@ export const localStorageStore = <T>(
       stores[key] ||
       (stores[key] = new LocalStorageStore<T>(key, initialValue, setter))
   );
+};
+
+export const destroyLocalStorageStore = (key: string) => {
+  if (stores[key]) {
+    stores[key].detach();
+    delete stores[key];
+  }
 };
